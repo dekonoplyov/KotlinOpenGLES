@@ -1,9 +1,7 @@
 package com.example.android.hellotriangle
 
-import android.opengl.GLES20
 import android.opengl.GLES30.*
 import java.nio.Buffer
-import java.nio.FloatBuffer
 
 class Shape {
     val vertices = floatArrayOf(
@@ -41,11 +39,9 @@ class Shape {
             "    gl_FragColor = u_Color;" +
             "}"
 
-    var programId = -1
+    val shader = ShaderProgram(vertexShader, fragmentShader)
 
     init {
-        compileProgram()
-
         vaoId = beginVAO()
 
         setVertexBuffer(vertices.size * 4, verticesBuffer)
@@ -57,23 +53,6 @@ class Shape {
         setVertexBuffer(vert1.size * 4, verticesBuffer1)
 
         endVAO()
-    }
-
-
-
-    fun compileProgram() {
-        val vertexShaderId = glCreateShader(GL_VERTEX_SHADER)
-        glShaderSource(vertexShaderId, vertexShader)
-        glCompileShader(vertexShaderId)
-
-        val fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER)
-        glShaderSource(fragmentShaderId, fragmentShader)
-        glCompileShader(fragmentShaderId)
-
-        programId = glCreateProgram()
-        glAttachShader(programId, vertexShaderId)
-        glAttachShader(programId, fragmentShaderId)
-        glLinkProgram(programId)
     }
 
     fun beginVAO(): Int {
@@ -90,7 +69,7 @@ class Shape {
         glBindBuffer(GL_ARRAY_BUFFER, vboBuffer.get(0))
         glBufferData(GL_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW)
 
-        val positionHandle = glGetAttribLocation(programId, "a_Position")
+        val positionHandle = glGetAttribLocation(shader.programId, "a_Position")
         val vertexStride = 3 * 4
         glVertexAttribPointer(positionHandle, 3, GL_FLOAT, false, vertexStride, 0)
         glEnableVertexAttribArray(positionHandle)
@@ -102,9 +81,9 @@ class Shape {
     }
 
     fun draw() {
-        glUseProgram(programId)
+        shader.startUse()
 
-        val colorHandle = glGetUniformLocation(programId, "u_Color")
+        val colorHandle = glGetUniformLocation(shader.programId, "u_Color")
 
         glUniform4f(colorHandle, 1f, 0f, 0f, 1f)
         glBindVertexArray(vaoId)
@@ -116,5 +95,6 @@ class Shape {
 
         glBindVertexArray(0)
 
+        shader.stopUse()
     }
 }
