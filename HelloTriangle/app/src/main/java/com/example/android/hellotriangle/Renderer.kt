@@ -1,26 +1,31 @@
 package com.example.android.hellotriangle
 
-import android.opengl.GLES20
+import android.opengl.GLES30.*
 import android.opengl.GLSurfaceView
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class TriangleRenderer : GLSurfaceView.Renderer {
-    val duration = 1000.0
+//    val duration = 1000.0
+    var shape: Shape? = null
 
     override fun onDrawFrame(p0: GL10?) {
-        var intensity = Math.sin(System.currentTimeMillis() / duration).toFloat()
+//        val intensity = Math.sin(System.currentTimeMillis() / duration).toFloat()
 
-        GLES20.glClearColor(intensity, 0.0f, intensity, 1.0f)
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f)
+        glClear(GL_COLOR_BUFFER_BIT)
+
+        shape?.draw()
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
-        GLES20.glViewport(0, 0, width, height)
+        glViewport(0, 0, width, height)
     }
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+
+        shape = Shape()
     }
 
 }
