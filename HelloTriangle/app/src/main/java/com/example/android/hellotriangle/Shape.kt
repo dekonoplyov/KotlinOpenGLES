@@ -1,5 +1,6 @@
 package com.example.android.hellotriangle
 
+import android.opengl.GLES20
 import android.opengl.GLES30.*
 
 class Shape {
@@ -13,15 +14,7 @@ class Shape {
     val verticesBuffer = floatBuffer(vertices.size)
             .put(vertices).position(0)
 
-    val indexes = shortArrayOf(
-            0, 2, 3,
-            0, 1, 2
-    )
-
-    val indexBuffer = shortBuffer(indexes.size)
-            .put(indexes).position(0)
-
-    var vaoId = -1
+     var vaoId = -1
 
     val vertexShader =
             "attribute vec4 a_Position;" +
@@ -45,7 +38,6 @@ class Shape {
         beginVAO()
 
         setVertexBuffer()
-        setIndexBuffer()
 
         endVAO()
     }
@@ -89,15 +81,6 @@ class Shape {
 
     }
 
-    fun setIndexBuffer() {
-        val vioBuffer = intBuffer(1)
-        glGenBuffers(1, vioBuffer)
-        val vioId = vioBuffer.get(0)
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vioId)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes.size * 2, indexBuffer, GL_STATIC_DRAW)
-    }
-
     fun endVAO() {
         glBindVertexArray(vaoId)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
@@ -109,7 +92,8 @@ class Shape {
         glBindVertexArray(vaoId)
         val colorHandle = glGetUniformLocation(programId, "u_Color")
         glUniform4f(colorHandle, 1f, 0f, 0f, 1f)
-        glDrawElements(GL_TRIANGLES, indexes.size, GL_UNSIGNED_SHORT, 0)
+        glDrawArrays(GL_TRIANGLES, 0, 3)
+
         glBindVertexArray(0)
 
     }
