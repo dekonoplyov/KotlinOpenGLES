@@ -6,10 +6,13 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class TriangleRenderer : GLSurfaceView.Renderer {
-    override fun onDrawFrame(p0: GL10?) {
-        GLES20.glClearColor(1.0f, 0.0f, 1.0f, 1.0f)
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+    val duration = 1000.0
 
+    override fun onDrawFrame(p0: GL10?) {
+        var intensity = Math.sin(System.currentTimeMillis() / duration).toFloat()
+
+        GLES20.glClearColor(intensity, 0.0f, intensity, 1.0f)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
