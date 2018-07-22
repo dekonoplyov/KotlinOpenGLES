@@ -11,7 +11,7 @@ class Shape {
     )
 
     val vert1 = floatArrayOf(
-            0.5f, 0.7f, 0f,
+            0.5f, 0.7f, 1f,
             -0.5f, 0.7f, 0f,
             -0.5f,  0f, 0f
     )
@@ -27,16 +27,18 @@ class Shape {
 
     val vertexShader =
             "attribute vec4 a_Position;" +
+            "varying vec4 v_Color;" +
             "void main()" +
             "{" +
+            "    v_Color = a_Position;" +
             "    gl_Position = a_Position;" +
             "}"
     val fragmentShader =
             "precision mediump float;" +
-            "uniform vec4 u_Color;" +
+            "varying vec4 v_Color;" +
             "void main()" +
             "{" +
-            "    gl_FragColor = u_Color;" +
+            "    gl_FragColor = v_Color;" +
             "}"
 
     val shader = ShaderProgram(vertexShader, fragmentShader)
@@ -83,13 +85,9 @@ class Shape {
     fun draw() {
         shader.startUse()
 
-        val colorHandle = glGetUniformLocation(shader.programId, "u_Color")
-
-        glUniform4f(colorHandle, 1f, 0f, 0f, 1f)
         glBindVertexArray(vaoId)
         glDrawArrays(GL_TRIANGLES, 0, 3)
 
-        glUniform4f(colorHandle, 1f, 0f, 1f, 1f)
         glBindVertexArray(vaoId1)
         glDrawArrays(GL_TRIANGLES, 0, 3)
 
