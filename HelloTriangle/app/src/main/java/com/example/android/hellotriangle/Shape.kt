@@ -5,37 +5,27 @@ import java.nio.Buffer
 
 class Shape {
     val vertices = floatArrayOf(
-            -0.5f, -0.5f, 0f,
-             0.5f, -0.5f, 0f,
-             0.5f,  0.5f, 0f
-    )
-
-    val vert1 = floatArrayOf(
-            0.5f, 0.7f, 1f,
-            -0.5f, 0.7f, 0f,
-            -0.5f,  0f, 0f
+            -0.5f, -0.5f, 0f, 1f, 0f, 0f,
+             0.5f, -0.5f, 0f, 0f, 1f, 0f,
+             0.5f,  0.5f, 0f, 0f, 0f, 1f
     )
 
     val verticesBuffer = floatBuffer(vertices.size)
             .put(vertices).position(0)
 
-    val verticesBuffer1 = floatBuffer(vert1.size)
-            .put(vert1).position(0)
-
-    var vaoId = -1
-    var vaoId1 = -1
+    var verticesVAOId = -1
 
     val vertexShader =
             "attribute vec4 a_Position;" +
-            "varying vec4 v_Color;" +
+            "attribute vec3 a_Color;" +
+            "varying lowp vec4 v_Color;" +
             "void main()" +
             "{" +
-            "    v_Color = a_Position;" +
+            "    v_Color = vec4(a_Color, 1);" +
             "    gl_Position = a_Position;" +
             "}"
     val fragmentShader =
-            "precision mediump float;" +
-            "varying vec4 v_Color;" +
+            "varying lowp vec4 v_Color;" +
             "void main()" +
             "{" +
             "    gl_FragColor = v_Color;" +
@@ -44,17 +34,12 @@ class Shape {
     val shader = ShaderProgram(vertexShader, fragmentShader)
 
     init {
-        vaoId = beginVAO()
+        verticesVAOId = beginVAO()
 
         setVertexBuffer(vertices.size * 4, verticesBuffer)
 
         endVAO()
 
-        vaoId1 = beginVAO()
-
-        setVertexBuffer(vert1.size * 4, verticesBuffer1)
-
-        endVAO()
     }
 
     fun beginVAO(): Int {
@@ -71,10 +56,16 @@ class Shape {
         glBindBuffer(GL_ARRAY_BUFFER, vboBuffer.get(0))
         glBufferData(GL_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW)
 
+        val vertexStride = (3 + 3) * 4
+
         val positionHandle = glGetAttribLocation(shader.programId, "a_Position")
-        val vertexStride = 3 * 4
         glVertexAttribPointer(positionHandle, 3, GL_FLOAT, false, vertexStride, 0)
         glEnableVertexAttribArray(positionHandle)
+
+        val colorOffset = 3 * 4
+        val colorHandle = glGetAttribLocation(shader.programId, "a_Color")
+        glVertexAttribPointer(colorHandle, 3, GL_FLOAT, false, vertexStride, colorOffset)
+        glEnableVertexAttribArray(colorHandle)
     }
 
     fun endVAO() {
@@ -85,10 +76,7 @@ class Shape {
     fun draw() {
         shader.startUse()
 
-        glBindVertexArray(vaoId)
-        glDrawArrays(GL_TRIANGLES, 0, 3)
-
-        glBindVertexArray(vaoId1)
+        glBindVertexArray(verticesVAOId)
         glDrawArrays(GL_TRIANGLES, 0, 3)
 
         glBindVertexArray(0)
