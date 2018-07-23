@@ -5,8 +5,6 @@ import android.graphics.BitmapFactory
 import android.opengl.GLES30.*
 import android.opengl.GLUtils.texImage2D
 import java.nio.Buffer
-import android.opengl.GLES20.glUniform1i
-
 
 
 class Shape(val context: Context?) {
@@ -30,8 +28,6 @@ class Shape(val context: Context?) {
 
     var verticesVAOId = -1
 
-    var textureId = -1
-
     val vertexShader =
             "attribute vec4 a_Position;" +
             "attribute vec3 a_Color;" +
@@ -54,15 +50,17 @@ class Shape(val context: Context?) {
             "}"
 
     val shader = ShaderProgram(vertexShader, fragmentShader)
+    val textures = TextureManager(context)
 
     init {
         verticesVAOId = beginVAO()
 
         setVertexBuffer(vertices.size * 4, vertexBuffer)
         setIndexBuffer()
-        loadTexture()
 
         endVAO()
+
+        textures.load(R.drawable.tyrin, true)
     }
 
     fun beginVAO(): Int {
@@ -104,34 +102,6 @@ class Shape(val context: Context?) {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes.size * 2, indexBuffer, GL_STATIC_DRAW)
     }
 
-    fun loadTexture() {
-        val textureIds = IntArray(1)
-        glGenTextures(1, textureIds, 0)
-        textureId = textureIds[0]
-
-        val options = BitmapFactory.Options()
-        options.inScaled = false
-
-        val bitmap = BitmapFactory.decodeResource(context?.resources, R.drawable.tyrin, options)
-        glBindTexture(GL_TEXTURE_2D, textureId)
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-
-        texImage2D(GL_TEXTURE_2D, 0, bitmap, 0)
-        glGenerateMipmap(GL_TEXTURE_2D)
-
-        bitmap.recycle()
-        glBindTexture(GL_TEXTURE_2D, 0)
-
-        // before setting uniform always call glUseProgram
-        shader.startUse()
-        glUniform1i(shader.getAttributeLocation("u_TextureUnit"), /*GL_TEXTURE0*/ 0)
-        shader.stopUse()
-    }
 
     fun endVAO() {
         glBindVertexArray(0)
@@ -140,11 +110,10 @@ class Shape(val context: Context?) {
     }
 
     fun draw() {
-
-        glActiveTexture(GL_TEXTURE0)
-        glBindTexture(GL_TEXTURE_2D, textureId)
-
         shader.startUse()
+
+        shader.bindTexture("u_TextureUnit", GL_TEXTURE0,
+                textures.getTextureId(R.drawable.tyrin))
 
         glBindVertexArray(verticesVAOId)
         glDrawElements(GL_TRIANGLES, indexes.size, GL_UNSIGNED_SHORT, 0)
