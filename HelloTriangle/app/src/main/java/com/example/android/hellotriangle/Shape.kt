@@ -1,18 +1,16 @@
 package com.example.android.hellotriangle
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.opengl.GLES30.*
-import android.opengl.GLUtils.texImage2D
 import java.nio.Buffer
 
 
 class Shape(val context: Context?) {
     val vertices = floatArrayOf(
-            -0.5f, -0.5f, 0f, 1f, 0f, 0f, 0f, 0f,
-             0.5f, -0.5f, 0f, 0f, 1f, 0f, 1f, 0f,
-             0.5f,  0.5f, 0f, 0f, 0f, 1f, 1f, 1f,
-            -0.5f,  0.5f, 0f, 1f, 0f, 1f, 0f, 1f
+            -0.9f, -0.9f, 0f, 1f, 0f, 0f, 0f, 0f,
+             0.9f, -0.9f, 0f, 0f, 1f, 0f, 1f, 0f,
+             0.9f,  0.9f, 0f, 0f, 0f, 1f, 1f, 1f,
+            -0.9f,  0.9f, 0f, 1f, 0f, 1f, 0f, 1f
     )
 
     val vertexBuffer = floatBuffer(vertices.size)
@@ -30,23 +28,24 @@ class Shape(val context: Context?) {
 
     val vertexShader =
             "attribute vec4 a_Position;" +
-            "attribute vec3 a_Color;" +
+//            "attribute vec3 a_Color;" +
             "attribute vec2 a_TextureCoordinates;" +
-            "varying lowp vec4 v_Color;" +
+//            "varying lowp vec4 v_Color;" +
             "varying mediump vec2 v_TextureCoordinates;" +
             "void main()" +
             "{" +
             "    v_TextureCoordinates = a_TextureCoordinates;" +
-            "    v_Color = vec4(a_Color, 1);" +
+//            "    v_Color = vec4(a_Color, 1);" +
             "    gl_Position = a_Position;" +
             "}"
     val fragmentShader =
-            "varying lowp vec4 v_Color;" +
+//            "varying lowp vec4 v_Color;" +
             "varying mediump vec2 v_TextureCoordinates;" +
-            "uniform sampler2D u_TextureUnit;" +
+            "uniform sampler2D u_TextureUnit0;" +
+            "uniform sampler2D u_TextureUnit1;" +
             "void main()" +
             "{" +
-                "    gl_FragColor = texture2D(u_TextureUnit, v_TextureCoordinates) * v_Color;" +
+                "    gl_FragColor = mix(texture2D(u_TextureUnit0, v_TextureCoordinates), texture2D(u_TextureUnit1, v_TextureCoordinates), 0.4);" +
             "}"
 
     val shader = ShaderProgram(vertexShader, fragmentShader)
@@ -61,6 +60,7 @@ class Shape(val context: Context?) {
         endVAO()
 
         textures.load(R.drawable.tyrin, true)
+        textures.load(R.drawable.dark_forest, true)
     }
 
     fun beginVAO(): Int {
@@ -83,10 +83,10 @@ class Shape(val context: Context?) {
         glVertexAttribPointer(positionHandle, 3, GL_FLOAT, false, stride, 0)
         glEnableVertexAttribArray(positionHandle)
 
-        val colorOffset = 3 * 4
-        val colorHandle = shader.getAttributeLocation("a_Color")
-        glVertexAttribPointer(colorHandle, 3, GL_FLOAT, false, stride, colorOffset)
-        glEnableVertexAttribArray(colorHandle)
+//        val colorOffset = 3 * 4
+//        val colorHandle = shader.getAttributeLocation("a_Color")
+//        glVertexAttribPointer(colorHandle, 3, GL_FLOAT, false, stride, colorOffset)
+//        glEnableVertexAttribArray(colorHandle)
 
         val textureOffset = (3 + 3) * 4
         val textureHandle = shader.getAttributeLocation("a_TextureCoordinates")
@@ -112,8 +112,10 @@ class Shape(val context: Context?) {
     fun draw() {
         shader.startUse()
 
-        shader.bindTexture("u_TextureUnit", GL_TEXTURE0,
+        shader.bindTexture("u_TextureUnit0", GL_TEXTURE0,
                 textures.getTextureId(R.drawable.tyrin))
+        shader.bindTexture("u_TextureUnit1", GL_TEXTURE1,
+                textures.getTextureId(R.drawable.dark_forest))
 
         glBindVertexArray(verticesVAOId)
         glDrawElements(GL_TRIANGLES, indexes.size, GL_UNSIGNED_SHORT, 0)

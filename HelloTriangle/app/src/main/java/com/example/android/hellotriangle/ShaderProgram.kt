@@ -1,5 +1,6 @@
 package com.example.android.hellotriangle
 
+import android.opengl.GLES20
 import android.opengl.GLES30.*
 import android.util.Log
 
@@ -77,11 +78,19 @@ class ShaderProgram(vertexShaderCode: String, fragmentShaderCode: String) {
         return location
     }
 
+    fun getUniformLocation(name: String): Int {
+        val location = glGetUniformLocation(programId, name)
+        if (location == -1) {
+            Log.w(shaderLogTag, "Can't find uniform '$name' in program '$programId'")
+        }
+        return location
+    }
+
     // before setting uniform always call glUseProgram/startUse
     // bindTexture("u_TextureUnit", GL_TEXTURE0, textureManager.get(R.draw.tyrin))
     fun bindTexture(textureHandle: String, textureUnit: Int, textureId: Int) {
         glActiveTexture(textureUnit)
-        glUniform1i(getAttributeLocation(textureHandle), textureUnit - GL_TEXTURE0)
+        glUniform1i(getUniformLocation(textureHandle), textureUnit - GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, textureId)
     }
 }
