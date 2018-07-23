@@ -1,6 +1,7 @@
 package com.example.android.hellotriangle
 
 import android.content.Context
+import android.opengl.GLES20
 import android.opengl.GLES30.*
 import java.nio.Buffer
 
@@ -27,19 +28,16 @@ class Shape(val context: Context?) {
     var verticesVAOId = -1
 
     val vertexShader =
+            "uniform mat4 u_Matrix;" +
             "attribute vec4 a_Position;" +
-//            "attribute vec3 a_Color;" +
             "attribute vec2 a_TextureCoordinates;" +
-//            "varying lowp vec4 v_Color;" +
             "varying mediump vec2 v_TextureCoordinates;" +
             "void main()" +
             "{" +
             "    v_TextureCoordinates = a_TextureCoordinates;" +
-//            "    v_Color = vec4(a_Color, 1);" +
-            "    gl_Position = a_Position;" +
+            "    gl_Position = u_Matrix * a_Position;" +
             "}"
     val fragmentShader =
-//            "varying lowp vec4 v_Color;" +
             "varying mediump vec2 v_TextureCoordinates;" +
             "uniform sampler2D u_TextureUnit0;" +
             "uniform sampler2D u_TextureUnit1;" +
@@ -83,11 +81,6 @@ class Shape(val context: Context?) {
         glVertexAttribPointer(positionHandle, 3, GL_FLOAT, false, stride, 0)
         glEnableVertexAttribArray(positionHandle)
 
-//        val colorOffset = 3 * 4
-//        val colorHandle = shader.getAttributeLocation("a_Color")
-//        glVertexAttribPointer(colorHandle, 3, GL_FLOAT, false, stride, colorOffset)
-//        glEnableVertexAttribArray(colorHandle)
-
         val textureOffset = (3 + 3) * 4
         val textureHandle = shader.getAttributeLocation("a_TextureCoordinates")
         glVertexAttribPointer(textureHandle, 2, GL_FLOAT, false, stride, textureOffset)
@@ -107,6 +100,14 @@ class Shape(val context: Context?) {
         glBindVertexArray(0)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+    }
+
+    fun setViewPort(viewPort: FloatArray) {
+        shader.startUse()
+
+        glUniformMatrix4fv(shader.getUniformLocation("u_Matrix"), 1, false, viewPort, 0)
+
+        shader.stopUse()
     }
 
     fun draw() {
