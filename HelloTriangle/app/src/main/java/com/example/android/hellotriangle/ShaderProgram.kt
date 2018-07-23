@@ -68,4 +68,12 @@ class ShaderProgram(vertexShaderCode: String, fragmentShaderCode: String) {
     fun stopUse() {
         glUseProgram(0)
     }
+
+    fun getAttributeLocation(name: String): Int {
+        val location = glGetAttribLocation(programId, name)
+        if (location == -1) {
+            Log.w(shaderLogTag, "Can't find attribute '$name' in program '$programId'")
+        }
+        return location
+    }
 }

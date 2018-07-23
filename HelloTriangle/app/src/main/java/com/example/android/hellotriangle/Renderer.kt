@@ -1,11 +1,12 @@
 package com.example.android.hellotriangle
 
+import android.content.Context
 import android.opengl.GLES30.*
 import android.opengl.GLSurfaceView
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class TriangleRenderer : GLSurfaceView.Renderer {
+class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
 //    val duration = 1000.0
     var shape: Shape? = null
 
@@ -25,7 +26,7 @@ class TriangleRenderer : GLSurfaceView.Renderer {
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
 
-        shape = Shape()
+        shape = Shape(context)
     }
 
 }

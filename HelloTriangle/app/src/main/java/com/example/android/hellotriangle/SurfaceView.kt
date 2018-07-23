@@ -6,6 +6,6 @@ import android.opengl.GLSurfaceView
 class TriangleSurfaceView(context: Context?) : GLSurfaceView(context) {
     init {
         setEGLContextClientVersion(3)
-        setRenderer(TriangleRenderer())
+        setRenderer(TriangleRenderer(context))
     }
 }
