@@ -59,6 +59,8 @@ class Shape(val context: Context?) {
 
         textures.load(R.drawable.tyrin, true)
         textures.load(R.drawable.dark_forest, true)
+
+        setUniforms()
     }
 
     fun beginVAO(): Int {
@@ -110,13 +112,27 @@ class Shape(val context: Context?) {
         shader.stopUse()
     }
 
+    fun setUniforms() {
+        shader.startUse()
+
+        // glUniform1i(samplerHandle, 0) means take textures from GL_TEXTURE0
+        glUniform1i(shader.getUniformLocation("u_TextureUnit0"), GL_TEXTURE0 - GL_TEXTURE0)
+        glUniform1i(shader.getUniformLocation("u_TextureUnit1"), GL_TEXTURE1 - GL_TEXTURE0)
+
+        shader.stopUse()
+    }
+
+    // bindTexture(GL_TEXTURE0, textures.getTextureId(R.drawable.tyrin))
+    fun bindTexture(textureUnit: Int, textureId: Int) {
+        glActiveTexture(textureUnit)
+        glBindTexture(GL_TEXTURE_2D, textureId)
+    }
+
     fun draw() {
         shader.startUse()
 
-        shader.bindTexture("u_TextureUnit0", GL_TEXTURE0,
-                textures.getTextureId(R.drawable.tyrin))
-        shader.bindTexture("u_TextureUnit1", GL_TEXTURE1,
-                textures.getTextureId(R.drawable.dark_forest))
+        bindTexture(GL_TEXTURE0, textures.getTextureId(R.drawable.tyrin))
+        bindTexture(GL_TEXTURE1, textures.getTextureId(R.drawable.dark_forest))
 
         glBindVertexArray(verticesVAOId)
         glDrawElements(GL_TRIANGLES, indexes.size, GL_UNSIGNED_SHORT, 0)

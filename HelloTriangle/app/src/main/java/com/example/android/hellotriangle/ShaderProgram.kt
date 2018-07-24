@@ -85,12 +85,4 @@ class ShaderProgram(vertexShaderCode: String, fragmentShaderCode: String) {
         }
         return location
     }
-
-    // before setting uniform always call glUseProgram/startUse
-    // bindTexture("u_TextureUnit", GL_TEXTURE0, textureManager.get(R.draw.tyrin))
-    fun bindTexture(textureHandle: String, textureUnit: Int, textureId: Int) {
-        glActiveTexture(textureUnit)
-        glUniform1i(getUniformLocation(textureHandle), textureUnit - GL_TEXTURE0)
-        glBindTexture(GL_TEXTURE_2D, textureId)
-    }
 }
