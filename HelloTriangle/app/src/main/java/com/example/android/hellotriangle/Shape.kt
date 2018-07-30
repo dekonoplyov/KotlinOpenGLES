@@ -1,17 +1,16 @@
 package com.example.android.hellotriangle
 
 import android.content.Context
-import android.opengl.GLES20
 import android.opengl.GLES30.*
 import java.nio.Buffer
 
 
 class Shape(val context: Context?) {
     val vertices = floatArrayOf(
-            -0.9f, -0.9f, 0f, 1f, 0f, 0f, 0f, 0f,
-             0.9f, -0.9f, 0f, 0f, 1f, 0f, 1f, 0f,
-             0.9f,  0.9f, 0f, 0f, 0f, 1f, 1f, 1f,
-            -0.9f,  0.9f, 0f, 1f, 0f, 1f, 0f, 1f
+            -0.3f, -0.3f, 0f, 1f, 0f, 0f, 0f, 0f,
+             0.3f, -0.3f, 0f, 0f, 1f, 0f, 1f, 0f,
+             0.3f,  0.3f, 0f, 0f, 0f, 1f, 1f, 1f,
+            -0.3f,  0.3f, 0f, 1f, 0f, 1f, 0f, 1f
     )
 
     val vertexBuffer = floatBuffer(vertices.size)
@@ -40,10 +39,9 @@ class Shape(val context: Context?) {
     val fragmentShader =
             "varying mediump vec2 v_TextureCoordinates;" +
             "uniform sampler2D u_TextureUnit0;" +
-            "uniform sampler2D u_TextureUnit1;" +
             "void main()" +
             "{" +
-                "    gl_FragColor = mix(texture2D(u_TextureUnit0, v_TextureCoordinates), texture2D(u_TextureUnit1, v_TextureCoordinates), 0.4);" +
+                "    gl_FragColor = texture2D(u_TextureUnit0, v_TextureCoordinates);" +
             "}"
 
     val shader = ShaderProgram(vertexShader, fragmentShader)
@@ -58,7 +56,6 @@ class Shape(val context: Context?) {
         endVAO()
 
         textures.load(R.drawable.tyrin, true)
-        textures.load(R.drawable.dark_forest, true)
 
         setUniforms()
     }
@@ -104,7 +101,7 @@ class Shape(val context: Context?) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
     }
 
-    fun setViewPort(viewPort: FloatArray) {
+    fun setMatrix(viewPort: FloatArray) {
         shader.startUse()
 
         glUniformMatrix4fv(shader.getUniformLocation("u_Matrix"), 1, false, viewPort, 0)
@@ -117,7 +114,6 @@ class Shape(val context: Context?) {
 
         // glUniform1i(samplerHandle, 0) means take textures from GL_TEXTURE0
         glUniform1i(shader.getUniformLocation("u_TextureUnit0"), GL_TEXTURE0 - GL_TEXTURE0)
-        glUniform1i(shader.getUniformLocation("u_TextureUnit1"), GL_TEXTURE1 - GL_TEXTURE0)
 
         shader.stopUse()
     }
@@ -132,7 +128,6 @@ class Shape(val context: Context?) {
         shader.startUse()
 
         bindTexture(GL_TEXTURE0, textures.getTextureId(R.drawable.tyrin))
-        bindTexture(GL_TEXTURE1, textures.getTextureId(R.drawable.dark_forest))
 
         glBindVertexArray(verticesVAOId)
         glDrawElements(GL_TRIANGLES, indexes.size, GL_UNSIGNED_SHORT, 0)
