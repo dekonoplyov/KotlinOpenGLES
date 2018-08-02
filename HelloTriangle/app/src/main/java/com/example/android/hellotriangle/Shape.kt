@@ -1,16 +1,54 @@
 package com.example.android.hellotriangle
 
 import android.content.Context
+import android.opengl.GLES20
 import android.opengl.GLES30.*
 import java.nio.Buffer
 
 
 class Shape(val context: Context?) {
     val vertices = floatArrayOf(
-            -0.3f, -0.3f, 0f, 1f, 0f, 0f, 0f, 0f,
-             0.3f, -0.3f, 0f, 0f, 1f, 0f, 1f, 0f,
-             0.3f,  0.3f, 0f, 0f, 0f, 1f, 1f, 1f,
-            -0.3f,  0.3f, 0f, 1f, 0f, 1f, 0f, 1f
+            -0.3f, -0.3f, -0.3f,  0.0f, 0.0f,
+            0.3f, -0.3f, -0.3f,  1.0f, 0.0f,
+            0.3f,  0.3f, -0.3f,  1.0f, 1.0f,
+            0.3f,  0.3f, -0.3f,  1.0f, 1.0f,
+            -0.3f,  0.3f, -0.3f,  0.0f, 1.0f,
+            -0.3f, -0.3f, -0.3f,  0.0f, 0.0f,
+
+            -0.3f, -0.3f,  0.3f,  0.0f, 0.0f,
+            0.3f, -0.3f,  0.3f,  1.0f, 0.0f,
+            0.3f,  0.3f,  0.3f,  1.0f, 1.0f,
+            0.3f,  0.3f,  0.3f,  1.0f, 1.0f,
+            -0.3f,  0.3f,  0.3f,  0.0f, 1.0f,
+            -0.3f, -0.3f,  0.3f,  0.0f, 0.0f,
+
+            -0.3f,  0.3f,  0.3f,  1.0f, 0.0f,
+            -0.3f,  0.3f, -0.3f,  1.0f, 1.0f,
+            -0.3f, -0.3f, -0.3f,  0.0f, 1.0f,
+            -0.3f, -0.3f, -0.3f,  0.0f, 1.0f,
+            -0.3f, -0.3f,  0.3f,  0.0f, 0.0f,
+            -0.3f,  0.3f,  0.3f,  1.0f, 0.0f,
+
+            0.3f,  0.3f,  0.3f,  1.0f, 0.0f,
+            0.3f,  0.3f, -0.3f,  1.0f, 1.0f,
+            0.3f, -0.3f, -0.3f,  0.0f, 1.0f,
+            0.3f, -0.3f, -0.3f,  0.0f, 1.0f,
+            0.3f, -0.3f,  0.3f,  0.0f, 0.0f,
+            0.3f,  0.3f,  0.3f,  1.0f, 0.0f,
+
+            -0.3f, -0.3f, -0.3f,  0.0f, 1.0f,
+            0.3f, -0.3f, -0.3f,  1.0f, 1.0f,
+            0.3f, -0.3f,  0.3f,  1.0f, 0.0f,
+            0.3f, -0.3f,  0.3f,  1.0f, 0.0f,
+            -0.3f, -0.3f,  0.3f,  0.0f, 0.0f,
+            -0.3f, -0.3f, -0.3f,  0.0f, 1.0f,
+
+            -0.3f,  0.3f, -0.3f,  0.0f, 1.0f,
+            0.3f,  0.3f, -0.3f,  1.0f, 1.0f,
+            0.3f,  0.3f,  0.3f,  1.0f, 0.0f,
+            0.3f,  0.3f,  0.3f,  1.0f, 0.0f,
+            -0.3f,  0.3f,  0.3f,  0.0f, 0.0f,
+            -0.3f,  0.3f, -0.3f,  0.0f, 1.0f
     )
 
     val vertexBuffer = floatBuffer(vertices.size)
@@ -51,7 +89,7 @@ class Shape(val context: Context?) {
         verticesVAOId = beginVAO()
 
         setVertexBuffer(vertices.size * 4, vertexBuffer)
-        setIndexBuffer()
+//        setIndexBuffer()
 
         endVAO()
 
@@ -74,25 +112,25 @@ class Shape(val context: Context?) {
         glBindBuffer(GL_ARRAY_BUFFER, vboBufferIds[0])
         glBufferData(GL_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW)
 
-        val stride = (3 + 3 + 2) * 4
+        val stride = (3 + 2) * 4
 
         val positionHandle = shader.getAttributeLocation("a_Position")
         glVertexAttribPointer(positionHandle, 3, GL_FLOAT, false, stride, 0)
         glEnableVertexAttribArray(positionHandle)
 
-        val textureOffset = (3 + 3) * 4
+        val textureOffset = (3) * 4
         val textureHandle = shader.getAttributeLocation("a_TextureCoordinates")
         glVertexAttribPointer(textureHandle, 2, GL_FLOAT, false, stride, textureOffset)
         glEnableVertexAttribArray(textureHandle)
     }
 
-    fun setIndexBuffer() {
-        val iboBufferIds = IntArray(1)
-        glGenBuffers(1, iboBufferIds, 0)
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboBufferIds[0])
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes.size * 2, indexBuffer, GL_STATIC_DRAW)
-    }
+//    fun setIndexBuffer() {
+//        val iboBufferIds = IntArray(1)
+//        glGenBuffers(1, iboBufferIds, 0)
+//
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboBufferIds[0])
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes.size * 2, indexBuffer, GL_STATIC_DRAW)
+//    }
 
 
     fun endVAO() {
@@ -130,7 +168,8 @@ class Shape(val context: Context?) {
         bindTexture(GL_TEXTURE0, textures.getTextureId(R.drawable.tyrin))
 
         glBindVertexArray(verticesVAOId)
-        glDrawElements(GL_TRIANGLES, indexes.size, GL_UNSIGNED_SHORT, 0)
+//        glDrawElements(GL_TRIANGLES, indexes.size, GL_UNSIGNED_SHORT, 0)
+        GLES20.glDrawArrays(GL_TRIANGLES, 0, 36)
 
         glBindVertexArray(0)
 

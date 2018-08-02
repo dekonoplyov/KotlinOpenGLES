@@ -15,35 +15,21 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
     val rotate = FloatArray(16)
     val transform = FloatArray(16)
     val temp = FloatArray(16)
-    val viewPort = FloatArray(16)
+    val projection = FloatArray(16)
 
     override fun onDrawFrame(p0: GL10?) {
-
+        glEnable(GL_DEPTH_TEST)
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f)
-        glClear(GL_COLOR_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
         val angle = 0.1f * (System.currentTimeMillis() % duration).toFloat()
 
         Matrix.setIdentityM(rotate, 0)
-        Matrix.setRotateM(rotate, 0, angle, 0f, 0f, -1f)
+        Matrix.setRotateM(rotate, 0, angle, 1f, 0.2f, 0.3f)
         Matrix.setIdentityM(translate, 0)
-        Matrix.translateM(translate, 0, 0.5f, 0.0f, 0f)
+        Matrix.translateM(translate, 0, 0.5f, 0.0f, -4f)
         Matrix.multiplyMM(transform, 0, translate, 0,  rotate, 0)
-
-        Matrix.multiplyMM(temp, 0, viewPort, 0, transform, 0)
-
-        shape?.setMatrix(temp)
-
-        shape?.draw()
-
-        val scale = Math.sin(0.01 * System.currentTimeMillis() % duration).toFloat() + 1f
-        Matrix.setIdentityM(rotate, 0)
-        Matrix.scaleM(rotate, 0, scale, scale, 0f)
-        Matrix.setIdentityM(translate, 0)
-        Matrix.translateM(translate, 0, 0.0f, 0.5f, 0f)
-        Matrix.multiplyMM(transform, 0, translate, 0,  rotate, 0)
-
-        Matrix.multiplyMM(temp, 0, viewPort, 0, transform, 0)
+        Matrix.multiplyMM(temp, 0, projection, 0,  transform, 0)
 
         shape?.setMatrix(temp)
 
@@ -53,18 +39,14 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
         glViewport(0, 0, width, height)
 
-        if (width > height) {
-            val aspectRatio = width.toFloat() / height.toFloat()
-            orthoM(viewPort, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f)
-        } else {
-            val aspectRatio = height.toFloat() / width.toFloat()
-            orthoM(viewPort, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f)
-        }
+        Matrix.perspectiveM(projection,0, 60f,
+                width.toFloat() / height.toFloat(),
+                1f, 10f)
+
     }
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
-
 
         shape = Shape(context)
     }
