@@ -12,7 +12,7 @@ class TriangleActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_triangle)
 
-        glSurfaceView = findViewById(R.id.some_shit)
+        glSurfaceView = findViewById(R.id.render_surface)
 
         val leftJoystick = findViewById<JoystickView>(R.id.left_joystick)
         leftJoystick.setOnMoveListener { angle, strength ->
