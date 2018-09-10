@@ -24,16 +24,40 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
 
         val angle = 0.1f * (System.currentTimeMillis() % duration).toFloat()
 
-        Matrix.setIdentityM(rotate, 0)
-        Matrix.setRotateM(rotate, 0, angle, 1f, 0.2f, 0.3f)
-        Matrix.setIdentityM(translate, 0)
-        Matrix.translateM(translate, 0, 0.5f, 0.0f, -4f)
-        Matrix.multiplyMM(transform, 0, translate, 0,  rotate, 0)
-        Matrix.multiplyMM(temp, 0, projection, 0,  transform, 0)
+        val tr = arrayOf(
+                floatArrayOf(-1.1f, 0f, -6f),
+                floatArrayOf(0f, 1.2f, -4f),
+                floatArrayOf(2.4f, 1.7f, -9f),
+                floatArrayOf(1.4f, -2.7f, -8f),
+                floatArrayOf(0f, 1.7f, -7f),
+                floatArrayOf(2f, -1.2f, -5f),
+                floatArrayOf(0f, -1.5f, -5f),
+                floatArrayOf(-1.3f, 1.5f, -6f),
+                floatArrayOf(1.1f, 2f, -4f),
+                floatArrayOf(1.3f, 0f, -4f),
+                floatArrayOf(-1f, -1f, -4f),
+                floatArrayOf(-0.1f, -0.1f, -6f)
+        )
 
-        shape?.setMatrix(temp)
 
-        shape?.draw()
+        for (i in 0..11) {
+            Matrix.setIdentityM(rotate, 0)
+            if (i % 2 == 0 || i % 3 == 0) {
+                Matrix.setRotateM(rotate, 0, i * 17f + angle, 1f, 0.2f, 0.3f)
+            } else {
+                Matrix.setRotateM(rotate, 0, 20f * i, 1f, 0.2f, 0.3f)
+            }
+            Matrix.setIdentityM(translate, 0)
+            Matrix.translateM(translate, 0, tr[i][0], tr[i][1], tr[i][2])
+            Matrix.multiplyMM(transform, 0, translate, 0,  rotate, 0)
+            Matrix.multiplyMM(temp, 0, projection, 0,  transform, 0)
+
+            shape?.setMatrix(temp)
+
+            shape?.draw()
+        }
+
+
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
