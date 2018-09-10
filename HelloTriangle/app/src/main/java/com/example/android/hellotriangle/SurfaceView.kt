@@ -4,11 +4,11 @@ import android.content.Context
 import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 
-class TriangleSurfaceView(context: Context?) : GLSurfaceView(context) {
+class TriangleSurfaceView(context: Context?, attrs: AttributeSet?) : GLSurfaceView(context, attrs) {
+    val renderer = TriangleRenderer(context)
+
     init {
         setEGLContextClientVersion(3)
-        setRenderer(TriangleRenderer(context))
+        setRenderer(renderer)
     }
-
-    constructor(context: Context?, attrs: AttributeSet) : this(context)
 }

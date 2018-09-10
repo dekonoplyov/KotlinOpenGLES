@@ -7,7 +7,7 @@
     tools:context=".TriangleActivity">
 
     <com.example.android.hellotriangle.TriangleSurfaceView
-        android:id="@+id/surface"
+        android:id="@+id/some_shit"
         android:layout_height="match_parent"
         android:layout_width="match_parent" />
 
