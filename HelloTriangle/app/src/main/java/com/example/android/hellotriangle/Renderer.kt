@@ -4,10 +4,10 @@ import android.content.Context
 import android.opengl.GLES30.*
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.opengl.Matrix.orthoM
-import android.util.Log
 import com.curiouscreature.kotlin.math.Float2
 import com.curiouscreature.kotlin.math.Float3
+import com.curiouscreature.kotlin.math.cross
+import com.curiouscreature.kotlin.math.normalize
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -21,16 +21,31 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
     val projection = FloatArray(16)
     val camera = FloatArray(16)
     var cameraPos = Float3(0.0f, 0.0f,  3.0f)
-    var cameraFront = Float3(0.0f, 0.0f, 0.0f)
-    val cameraUp = Float3(0.0f, 1.0f,  0.0f)
+    var cameraDirection = Float3(0f, 0f, -1f)
+    var cameraUp = Float3(0.0f, 1.0f,  0.0f)
+
+    var pitch = 0.0
+    var yaw = -Math.PI / 2.0
+
+    fun getUp(direction: Float3): Float3 {
+        val worldUp = Float3(0.0f, 1.0f,  0.0f)
+        val xAxis = cross(worldUp, direction)
+        return normalize(cross(direction, xAxis))
+    }
 
     fun move(vec: Float2) {
-        Log.w("joystick", "before ${cameraPos.x}, ${cameraPos.y}")
+        cameraPos += cameraDirection.times(vec.y) + cross(cameraDirection, cameraUp).times(vec.x)
+    }
 
-        cameraPos += vec
-        Log.w("joystick", "after ${cameraPos.x}, ${cameraPos.y}")
+    fun look(vec: Float2) {
+        pitch +=  Math.toRadians(4.0 * vec.y).toFloat()
+        yaw += Math.toRadians(4.0 * vec.x).toFloat()
 
-        cameraFront += vec
+        cameraDirection.x = (Math.cos(pitch) * Math.cos(yaw)).toFloat()
+        cameraDirection.y = Math.sin(pitch).toFloat()
+        cameraDirection.z = (Math.cos(pitch) * Math.sin(yaw)).toFloat()
+
+        cameraUp = getUp(cameraDirection)
     }
 
     override fun onDrawFrame(p0: GL10?) {
@@ -38,11 +53,11 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f)
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-        val angle = 0.1f * (System.currentTimeMillis() % duration).toFloat()
-
         Matrix.setLookAtM(camera, 0,
                 cameraPos.x, cameraPos.y, cameraPos.z,
-                cameraFront.x, cameraFront.y, cameraFront.z,
+                cameraPos.x + cameraDirection.x,
+                cameraPos.y + cameraDirection.y,
+                cameraPos.z + cameraDirection.z,
                 cameraUp.x, cameraUp.y, cameraUp.z)
 
         val tr = arrayOf(
@@ -63,11 +78,7 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
 
         for (i in 0..11) {
             Matrix.setIdentityM(rotate, 0)
-            if (i % 2 == 0 || i % 3 == 0) {
-                Matrix.setRotateM(rotate, 0, i * 17f + angle, 1f, 0.2f, 0.3f)
-            } else {
-                Matrix.setRotateM(rotate, 0, 20f * i, 1f, 0.2f, 0.3f)
-            }
+            Matrix.setRotateM(rotate, 0, 20f * i, 1f, 0.2f, 0.3f)
             Matrix.setIdentityM(translate, 0)
             Matrix.translateM(translate, 0, tr[i][0], tr[i][1], tr[i][2])
             Matrix.multiplyMM(transform, 0, translate, 0,  rotate, 0)
@@ -78,8 +89,6 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
 
             shape?.draw()
         }
-
-
     }
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
@@ -87,8 +96,7 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
 
         Matrix.perspectiveM(projection,0, 60f,
                 width.toFloat() / height.toFloat(),
-                1f, 10f)
-
+                1f, 100f)
     }
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
