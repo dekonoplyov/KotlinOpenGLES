@@ -3,6 +3,8 @@ package com.example.android.hellotriangle
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30.*
+import com.example.android.hellotriangle.util.floatBuffer
+import com.example.android.hellotriangle.util.shortBuffer
 import java.nio.Buffer
 
 

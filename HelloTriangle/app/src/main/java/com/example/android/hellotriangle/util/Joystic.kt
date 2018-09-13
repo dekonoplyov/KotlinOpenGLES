@@ -1,4 +1,4 @@
-package com.example.android.hellotriangle
+package com.example.android.hellotriangle.util
 
 import com.curiouscreature.kotlin.math.Float2
 

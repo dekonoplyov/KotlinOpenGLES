@@ -2,6 +2,7 @@ package com.example.android.hellotriangle
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.example.android.hellotriangle.util.polarToXY
 import io.github.controlwear.virtual.joystick.android.JoystickView
 
 class TriangleActivity : AppCompatActivity() {
