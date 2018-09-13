@@ -9,13 +9,11 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
-    var shape: Shape? = null
-    val translate = FloatArray(16)
-    val rotate = FloatArray(16)
-    val transform = FloatArray(16)
-    val temp = FloatArray(16)
-    val projection = FloatArray(16)
-    val camera = Camera()
+    private var shape: Shape? = null
+    private val transform = FloatArray(16)
+    private val temp = FloatArray(16)
+    private val projection = FloatArray(16)
+    private val camera = Camera()
 
     fun move(v: Float2) {
         camera.move(v)
@@ -31,7 +29,7 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
         val tr = arrayOf(
-                floatArrayOf(-1.1f, 0f, -6f),
+                floatArrayOf(2f, 2f, -4f),
                 floatArrayOf(0f, 1.2f, -4f),
                 floatArrayOf(2.4f, 1.7f, -9f),
                 floatArrayOf(1.4f, -2.7f, -8f),
@@ -45,13 +43,14 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
                 floatArrayOf(-0.1f, -0.1f, -6f)
         )
 
-        for (i in 0..11) {
-            Matrix.setIdentityM(rotate, 0)
-            Matrix.setRotateM(rotate, 0, 20f * i, 1f, 0.2f, 0.3f)
-            Matrix.setIdentityM(translate, 0)
-            Matrix.translateM(translate, 0, tr[i][0], tr[i][1], tr[i][2])
-            Matrix.multiplyMM(transform, 0, translate, 0,  rotate, 0)
+        for (i in 0 until tr.size) {
+            // this order means -- rotate then translate
+            Matrix.setIdentityM(transform, 0)
+            Matrix.translateM(transform, 0, tr[i][0], tr[i][1], tr[i][2])
+            Matrix.rotateM(transform, 0, 20f, 1f, 0.2f, 0.3f)
+
             Matrix.multiplyMM(temp, 0, camera.getLookAt(), 0,  transform, 0)
+            // reuse transform matrix to eliminate allocation
             Matrix.multiplyMM(transform, 0, projection, 0,  temp, 0)
 
             shape?.setMatrix(transform)
@@ -65,7 +64,7 @@ class TriangleRenderer(val context: Context?) : GLSurfaceView.Renderer {
 
         Matrix.perspectiveM(projection,0, 60f,
                 width.toFloat() / height.toFloat(),
-                1f, 100f)
+                0.1f, 100f)
     }
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
